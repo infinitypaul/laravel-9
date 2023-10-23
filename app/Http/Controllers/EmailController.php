@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ValidateEmailRequest;
+use App\Models\User;
 use App\Utilities\Contracts\ElasticsearchHelperInterface;
 use App\Utilities\Contracts\RedisHelperInterface;
+use Illuminate\Http\Request;
 
 class EmailController extends Controller
 {
     // TODO: finish implementing send method
-    public function send()
+    public function send(User $user, ValidateEmailRequest $request)
     {
-
+        $user = $request->user();
+        dd($user);
 
         /** @var ElasticsearchHelperInterface $elasticsearchHelper */
         $elasticsearchHelper = app()->make(ElasticsearchHelperInterface::class);

@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group(['middleware' => ['addTokenToHeader', 'auth:sanctum'], 'prefix' => '{user}'], function () {
+    Route::post('email', 'App\Http\Controllers\EmailController@send');
+});
+
