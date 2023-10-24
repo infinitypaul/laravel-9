@@ -3,39 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ValidateEmailRequest;
+use App\Jobs\SendEmail;
+use App\Mail\OrderShipped;
 use App\Models\User;
 use App\Utilities\Contracts\ElasticsearchHelperInterface;
 use App\Utilities\Contracts\RedisHelperInterface;
 use App\Utilities\Mailer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
     // TODO: finish implementing send method
-    public function send(User $user, ValidateEmailRequest $request, ElasticsearchHelperInterface $elasticsearchHelper)
+    public function send(User $user, ValidateEmailRequest $request, ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper)
     {
         $user = $request->user();
 
         foreach ($request->emails as $emailData) {
             $mail = new Mailer($emailData['to'], $emailData['subject'], $emailData['body']);
             $result = $elasticsearchHelper->storeEmail($mail);
-            dd($result);
+
+            $redisHelper->storeRecentMessage($result, $mail->subject, $mail->to);
+            SendEmail::dispatch($mail);
         }
 
-//        /** @var ElasticsearchHelperInterface $elasticsearchHelper */
-//        $elasticsearchHelper = app()->make(ElasticsearchHelperInterface::class);
-//        // TODO: Create implementation for storeEmail and uncomment the following line
-//        // $elasticsearchHelper->storeEmail(...);
-
-        /** @var RedisHelperInterface $redisHelper */
-        $redisHelper = app()->make(RedisHelperInterface::class);
-        // TODO: Create implementation for storeRecentMessage and uncomment the following line
-        // $redisHelper->storeRecentMessage(...);
+        return response()->json([
+            'message' => 'Emails sent successfully'
+        ]);
     }
 
     //  TODO - BONUS: implement list method
-    public function list()
+    public function list(ElasticsearchHelperInterface $elasticsearchHelper)
     {
+        $user = $request->user();
 
+        $emails = $elasticsearchHelper->getAllEmails();
+
+        return response()->json($emails);
     }
 }

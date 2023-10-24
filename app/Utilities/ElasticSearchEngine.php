@@ -21,6 +21,7 @@ class ElasticSearchEngine implements  ElasticsearchHelperInterface
         return $mailer->searchableID();
     }
 
+
     public function update($data): callable|array
     {
         $params = [
@@ -30,6 +31,20 @@ class ElasticSearchEngine implements  ElasticsearchHelperInterface
         ];
         return $this->client->index($params);
     }
+
+//    public function search($data, $query) {
+//        $params = [
+//            'index' => $data->searchableAs(),
+//            'body' => [
+//                'query' => [
+//                    'match' => [
+//                        'body' => $query
+//                    ]
+//                ]
+//            ]
+//        ];
+//        return $this->client->search($params);
+//    }
 
 
 

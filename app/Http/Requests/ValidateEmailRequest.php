@@ -4,6 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @property array $emails
+ */
 class ValidateEmailRequest extends FormRequest
 {
     /**

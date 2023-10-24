@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Utilities\Contracts\ElasticsearchHelperInterface;
+use App\Utilities\Contracts\RedisHelperInterface;
 use App\Utilities\ElasticSearchEngine;
+use App\Utilities\RedisEngine;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
@@ -33,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
                     ->build();
 
             return new ElasticSearchEngine($client);
+        });
+
+        $this->app->bind(RedisHelperInterface::class, function ($app) {
+            return new RedisEngine();
         });
     }
 }
