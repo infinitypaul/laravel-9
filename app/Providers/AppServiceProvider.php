@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ElasticsearchHelperInterface::class, function ($app) {
                 $client = ClientBuilder::create()
                     ->setHosts(config('elasticsearch.connections.default.hosts'))
-                    ->setSSLVerification(false)
+                    ->setSSLVerification(config('elasticsearch.connections.default.sslVerification', true))
                     ->build();
 
             return new ElasticSearchEngine($client);

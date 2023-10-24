@@ -8,10 +8,10 @@ interface ElasticsearchHelperInterface {
     /**
      * Store the email's message inside elasticsearch using the Mailer object.
      *
-     * @param  Mailer  $mail
+     * @param Searchable $data
      * @return mixed - Return the id of the record inserted into Elasticsearch
      */
-    public function storeEmail(Mailer $mail): mixed;
+    public function storeEmail(Searchable $data): mixed;
 
-    public function getAllEmails(): array;
+    public function getAllDataFromIndex(string $index, int $size = 1000): array;
 }

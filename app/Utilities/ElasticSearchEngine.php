@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Utilities\Contracts\ElasticsearchHelperInterface;
+use App\Utilities\Contracts\Searchable;
 use Elasticsearch\Client;
 
 class ElasticSearchEngine implements  ElasticsearchHelperInterface
@@ -14,16 +15,16 @@ class ElasticSearchEngine implements  ElasticsearchHelperInterface
         $this->client = $client;
     }
 
-    public function storeEmail(Mailer $mail): mixed
+    public function storeEmail(Searchable $data): mixed
     {
-        $this->indexData($mail);
-        return $mail->searchableID();
+        $this->indexData($data);
+        return $data->searchableID();
     }
 
-    public function getAllEmails(int $size = 1000): array
+    public function getAllDataFromIndex(string $index, int $size = 1000): array
     {
         $params = [
-            'index' => 'emails',
+            'index' => $index,
             'size' => $size,
         ];
 
@@ -34,7 +35,7 @@ class ElasticSearchEngine implements  ElasticsearchHelperInterface
         }, $response['hits']['hits']);
     }
 
-    private function indexData($data): void
+    private function indexData(Searchable $data): void
     {
         $params = [
             'index' => $data->searchableAs(),

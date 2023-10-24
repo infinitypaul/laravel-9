@@ -14,29 +14,37 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
-    // TODO: finish implementing send method
-    public function send(User $user, ValidateEmailRequest $request, ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper)
-    {
-        foreach ($request->emails as $emailData) {
-            $mail = new Mailer($emailData['to'], $emailData['subject'], $emailData['body']);
+    private ElasticsearchHelperInterface $elasticsearchHelper;
+    private RedisHelperInterface $redisHelper;
 
-            $this->storeEmail($mail, $elasticsearchHelper, $redisHelper);
+    public function __construct(ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper) {
+        $this->elasticsearchHelper = $elasticsearchHelper;
+        $this->redisHelper = $redisHelper;
+    }
+
+
+    // TODO: finish implementing send method
+    public function send(ValidateEmailRequest $request) {
+        foreach ($request->emails as $emailData) {
+            $mail = $this->createMailerFromRequestData($emailData);
+            $this->storeEmail($mail);
             SendEmail::dispatch($mail);
         }
 
         return response()->json(['message' => 'Emails sent successfully']);
     }
 
-    private function storeEmail(Mailer $mail, ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper)
-    {
-        $result = $elasticsearchHelper->storeEmail($mail);
-        $redisHelper->storeRecentMessage($result, $mail->subject, $mail->to);
+    private function createMailerFromRequestData(array $emailData): Mailer {
+        return new Mailer($emailData['to'], $emailData['subject'], $emailData['body']);
     }
 
-    //  TODO - BONUS: implement list method
-    public function list(ElasticsearchHelperInterface $elasticsearchHelper)
-    {
-        $emails = $elasticsearchHelper->getAllEmails();
+    private function storeEmail(Mailer $mail) {
+        $result = $this->elasticsearchHelper->storeEmail($mail);
+        $this->redisHelper->storeRecentMessage($result, $mail->subject, $mail->to);
+    }
+
+    public function list() {
+        $emails = $this->elasticsearchHelper->getAllDataFromIndex('emails');
 
         return response()->json($emails);
     }

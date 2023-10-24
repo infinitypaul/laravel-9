@@ -2,7 +2,9 @@
 
 namespace App\Utilities;
 
-class Mailer
+use App\Utilities\Contracts\Searchable;
+
+class Mailer implements Searchable
 {
     public string $to;
     public string $subject;
@@ -33,10 +35,4 @@ class Mailer
         return $this->to . '-' . md5($this->subject . $this->body);
     }
 
-//    public static function fromArray(array $emails): \Illuminate\Support\Collection
-//    {
-//        return collect($emails)->map(function ($emailData) {
-//            return new self($emailData['to'], $emailData['subject'], $emailData['body']);
-//        });
-//    }
 }
