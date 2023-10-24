@@ -17,26 +17,25 @@ class EmailController extends Controller
     // TODO: finish implementing send method
     public function send(User $user, ValidateEmailRequest $request, ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper)
     {
-        $user = $request->user();
-
         foreach ($request->emails as $emailData) {
             $mail = new Mailer($emailData['to'], $emailData['subject'], $emailData['body']);
-            $result = $elasticsearchHelper->storeEmail($mail);
 
-            $redisHelper->storeRecentMessage($result, $mail->subject, $mail->to);
+            $this->storeEmail($mail, $elasticsearchHelper, $redisHelper);
             SendEmail::dispatch($mail);
         }
 
-        return response()->json([
-            'message' => 'Emails sent successfully'
-        ]);
+        return response()->json(['message' => 'Emails sent successfully']);
+    }
+
+    private function storeEmail(Mailer $mail, ElasticsearchHelperInterface $elasticsearchHelper, RedisHelperInterface $redisHelper)
+    {
+        $result = $elasticsearchHelper->storeEmail($mail);
+        $redisHelper->storeRecentMessage($result, $mail->subject, $mail->to);
     }
 
     //  TODO - BONUS: implement list method
     public function list(ElasticsearchHelperInterface $elasticsearchHelper)
     {
-        $user = $request->user();
-
         $emails = $elasticsearchHelper->getAllEmails();
 
         return response()->json($emails);

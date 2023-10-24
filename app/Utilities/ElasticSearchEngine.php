@@ -4,49 +4,43 @@ namespace App\Utilities;
 
 use App\Utilities\Contracts\ElasticsearchHelperInterface;
 use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 
 class ElasticSearchEngine implements  ElasticsearchHelperInterface
 {
-
     private Client $client;
 
     public function __construct(Client $client)
     {
         $this->client = $client;
     }
-    public function storeEmail($mailer): mixed
+
+    public function storeEmail(Mailer $mail): mixed
     {
-        $this->update($mailer);
-        return $mailer->searchableID();
+        $this->indexData($mail);
+        return $mail->searchableID();
     }
 
+    public function getAllEmails(int $size = 1000): array
+    {
+        $params = [
+            'index' => 'emails',
+            'size' => $size,
+        ];
 
-    public function update($data): callable|array
+        $response = $this->client->search($params);
+
+        return array_map(function ($hit) {
+            return $hit['_source'];
+        }, $response['hits']['hits']);
+    }
+
+    private function indexData($data): void
     {
         $params = [
             'index' => $data->searchableAs(),
             'id' => $data->searchableID(),
             'body' => $data->toSearchableArray()
         ];
-        return $this->client->index($params);
+        $this->client->index($params);
     }
-
-//    public function search($data, $query) {
-//        $params = [
-//            'index' => $data->searchableAs(),
-//            'body' => [
-//                'query' => [
-//                    'match' => [
-//                        'body' => $query
-//                    ]
-//                ]
-//            ]
-//        ];
-//        return $this->client->search($params);
-//    }
-
-
-
-
 }

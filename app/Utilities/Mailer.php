@@ -30,13 +30,13 @@ class Mailer
 
     public function searchableID(): string
     {
-        return 'emails';
+        return $this->to . '-' . md5($this->subject . $this->body);
     }
 
-    public static function fromArray(array $emails): \Illuminate\Support\Collection
-    {
-        return collect($emails)->map(function ($emailData) {
-            return new self($emailData['to'], $emailData['subject'], $emailData['body']);
-        });
-    }
+//    public static function fromArray(array $emails): \Illuminate\Support\Collection
+//    {
+//        return collect($emails)->map(function ($emailData) {
+//            return new self($emailData['to'], $emailData['subject'], $emailData['body']);
+//        });
+//    }
 }

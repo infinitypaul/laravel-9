@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => ['addTokenToHeader', 'auth:sanctum'], 'prefix' => '{user}'], function () {
-    Route::post('email', 'App\Http\Controllers\EmailController@send');
+    Route::post('email', 'App\Http\Controllers\EmailController@send')->name('email.send');
+    Route::get('list', 'App\Http\Controllers\EmailController@list');
 });
 
